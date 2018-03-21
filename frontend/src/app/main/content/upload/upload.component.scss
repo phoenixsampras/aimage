@@ -1,0 +1,48 @@
+.wraper {
+  //   position: relative;
+  #preview-upload {
+    // position: absolute; // outline: 1px red solid;
+    width: 100%;
+    min-height: 200px;
+    transition: all ease 1s;
+    &.small {
+      width: 30%;
+      transition: all ease 1s;
+    }
+  }
+  .spiner {
+    // position: absolute;
+  }
+}
+
+.message {
+  .bold {
+    font-weight: bold;
+  }
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  background: #ffcbc8;
+  color: #ab1a0f;
+}
+
+.cards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  .card {
+    display: flex;
+    align-items: flex-start;
+    padding: 24px 24px 48px 24px;
+    margin-bottom: 30px; // width: 50%;
+    .card-preview {
+      display: flex; // min-width: 280px;
+    }
+    .card-source {
+      display: none;
+    }
+  }
+}
