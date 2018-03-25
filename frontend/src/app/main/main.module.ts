@@ -15,7 +15,7 @@ import { FuseQuickPanelComponent } from './quick-panel/quick-panel.component';
 import { FuseThemeOptionsComponent } from '../core/components/theme-options/theme-options.component';
 import { FuseShortcutsModule } from '../core/components/shortcuts/shortcuts.module';
 import { FuseSearchBarModule } from '../core/components/search-bar/search-bar.module';
-
+import { RegisterModule } from './content/register/register.module';
 @NgModule({
     declarations: [
         FuseContentComponent,
@@ -28,18 +28,18 @@ import { FuseSearchBarModule } from '../core/components/search-bar/search-bar.mo
         FuseThemeOptionsComponent,
         FuseQuickPanelComponent
     ],
-    imports     : [
+    imports: [
         SharedModule,
         RouterModule,
         FuseNavigationModule,
         FuseShortcutsModule,
-        FuseSearchBarModule
+        FuseSearchBarModule,
+        RegisterModule
     ],
-    exports     : [
+    exports: [
         FuseMainComponent
     ]
 })
 
-export class FuseMainModule
-{
+export class FuseMainModule {
 }

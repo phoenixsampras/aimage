@@ -11,7 +11,10 @@ export const locale = {
                 'TITLE': 'Subir',
                 'BADGE': '25'
             },
-            
+            'REGISTRY':{
+                'TITLE': 'Registry',
+                'BADGE': '25'
+            }
         }
     }
 };

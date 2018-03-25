@@ -41,6 +41,20 @@ export class FuseNavigationModel implements FuseNavigationModelInterface
                         //     'fg'   : '#FFFFFF'
                         // }
                     },
+                    {
+                        'id'   : 'regedit',
+                        'title': 'Registry',
+                        'translate': 'NAV.REGISTRY.TITLE',
+                        'type' : 'item',
+                        'icon' : 'email',
+                        'url'  : 'auth/register',
+                        // 'badge': {
+                        //     'title': 25,
+                        //     'translate': 'NAV.UPLOAD.BADGE',
+                        //     'bg'   : '#F44336',
+                        //     'fg'   : '#FFFFFF'
+                        // }
+                    },
                     
                 ]
             }

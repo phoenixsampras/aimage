@@ -11,7 +11,10 @@ export const locale = {
                 'TITLE': 'Upload',
                 'BADGE': '25'
             },
-            
+            'REGISTRY':{
+                'TITLE': 'Registry',
+                'BADGE': '25'
+            }
         }
     }
 };
