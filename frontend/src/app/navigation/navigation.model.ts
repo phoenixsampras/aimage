@@ -18,7 +18,7 @@ export class FuseNavigationModel implements FuseNavigationModelInterface
                         'title': 'Compare',
                         'translate': 'NAV.COMPARE.TITLE',
                         'type' : 'item',
-                        'icon' : 'email',
+                        'icon' : 'done_all',
                         'url'  : '/compare',
                         // 'badge': {
                         //     'title': 25,
@@ -32,7 +32,7 @@ export class FuseNavigationModel implements FuseNavigationModelInterface
                         'title': 'Upload',
                         'translate': 'NAV.UPLOAD.TITLE',
                         'type' : 'item',
-                        'icon' : 'email',
+                        'icon' : 'file_upload',
                         'url'  : '/upload',
                         // 'badge': {
                         //     'title': 25,
@@ -41,7 +41,8 @@ export class FuseNavigationModel implements FuseNavigationModelInterface
                         //     'fg'   : '#FFFFFF'
                         // }
                     },
-                    
+
+
                 ]
             }
         ];
