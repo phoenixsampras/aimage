@@ -2,7 +2,7 @@ export const locale = {
     lang: 'en',
     data: {
         'NAV': {
-            'APPLICATIONS': 'Applications',
+            'APPLICATIONS': 'Menu',
             'COMPARE'        : {
                 'TITLE': 'Compare',
                 'BADGE': '25'
@@ -11,7 +11,7 @@ export const locale = {
                 'TITLE': 'Upload',
                 'BADGE': '25'
             },
-            
+
         }
     }
 };

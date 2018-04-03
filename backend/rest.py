@@ -28,7 +28,7 @@ def create_new_folder(local_dir):
 def upload_to_clarifai(search, saved_path):
     isFirst = True
     for search_result in search:
-        if search_result.score > 0.8:
+        if search_result.score > 0.99:
             isFirst = False
             break
     if isFirst:
@@ -40,7 +40,7 @@ def upload_to_clarifai(search, saved_path):
 @app.route('/task/<task>', methods=['GET', 'POST'])
 def task(task):
     app.logger.info(PROJECT_HOME)
-    
+
     if task == 'compare':
         if request.method == 'POST' and request.files['image']:
             app.logger.info(app.config['UPLOAD_FOLDER'])
@@ -59,9 +59,9 @@ def task(task):
                 arr_search = []
                 for search_result in search:
                     arr_search.append({"score":search_result.score, "url": search_result.url})
-                
+
                 return jsonify(arr_search)
-                
+
             except IndexError as e:
                 print("error ")
                 return jsonify({"isSuccess":False, "error":e})
@@ -88,7 +88,7 @@ def task(task):
                     return jsonify({"isSuccess":isFirst, "message":"Successfully uploaded to clarifai.","searchResult":arr_search})
                 else:
                     return jsonify({"isSuccess":isFirst, "message":"Already exist on the clarifai.","searchResult":arr_search})
-                
+
             except IndexError as e:
                 print("error ")
                 return jsonify({"isSuccess":False, "message":"Some Exception occur", "error":e })

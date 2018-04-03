@@ -1,8 +1,8 @@
 export const locale = {
-    lang: 'tr',
+    lang: 'es',
     data: {
         'NAV': {
-            'APPLICATIONS': 'Applications',
+            'APPLICATIONS': 'MENU',
             'COMPARE'        : {
                 'TITLE': 'Comparar',
                 'BADGE': '25'
@@ -11,7 +11,7 @@ export const locale = {
                 'TITLE': 'Subir',
                 'BADGE': '25'
             },
-            
+
         }
     }
 };
