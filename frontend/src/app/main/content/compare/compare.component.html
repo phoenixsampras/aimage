@@ -23,6 +23,7 @@
             <!-- PREVIEW -->
             <div class="card-preview">
               <div class="fuse-card">
+                <button class='btn-right mat-raised-button mat-accent btn-remove' (click) = "removeFromResult(item)"> X </button>
                 <img src="{{item.url}}">
                 <div class="p-16">
                   <div class="h1">Score {{item.score}}</div>

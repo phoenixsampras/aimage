@@ -55,9 +55,12 @@ export class CompareComponent {
                     setTimeout(() => { this.msgs = []; this.message = null; }, 2000);
             });
     }
+    private resetResult() {
+        this.result = []
+    }
     fileChangeEvent(fileInput: any) {
         const self = this;
-
+        this.resetResult();
         if (fileInput.target.files && fileInput.target.files[0]) {
             const reader = new FileReader();
             this.isEnable = true;
@@ -69,5 +72,11 @@ export class CompareComponent {
 
             reader.readAsDataURL(fileInput.target.files[0]);
         }
+    }
+    removeFromResult(item) {
+        this.imageService.remove(item.id).subscribe(data => {
+            let refreshResult = this.result.filter(r => r != item)
+            this.result = refreshResult
+        })
     }
 }
