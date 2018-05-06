@@ -3,10 +3,14 @@ import logging
 import os
 from werkzeug import secure_filename
 import sys
+from sqlalchemy.inspection import inspect
 from flask_cors import CORS
 from clarifai.rest import ClarifaiApp
 from clarifai.rest import Image as ClImage
-clarifai_app = ClarifaiApp(api_key='c26b563b4f694b3d93a503bb959233b2')
+import base64
+from models.db import initDB
+from service.imgProcessing import imgProcessing
+clarifai_app = ClarifaiApp(api_key='c650f1c0094a4dd2b6021ca7175c88e5')
 # HOST_URL_PORT='http://sports-dev.calm-health.com:5000/'
 # HOST_URL_PORT='http://9.9.9.113:5000/'
 HOST_URL_PORT='http://localhost:5000/'
@@ -14,10 +18,58 @@ app = Flask(__name__)
 file_handler = logging.FileHandler('zServer.log')
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
-
 PROJECT_HOME = os.path.dirname(os.path.realpath(__file__))
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+db= initDB(app)
+
+class Picture(db.Model): #declare Picture Table
+    id= db.Column(db.Integer, primary_key=True)
+    lens = db.Column(db.BigInteger, nullable = False)
+    header = db.Column(db.Text, nullable = False)
+    footer = db.Column(db.Text, nullable = False)
+    middle = db.Column(db.Text, nullable = False)
+    def __repr__(self):
+        return '<Picture %r>' % self.id
+
+class PictureVariants(db.Model): #declare PictureVariants Table
+    id= db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String,  nullable= False)
+    picture_id = db.Column(db.Integer, db.ForeignKey('picture.id'), nullable= False)
+    score = db.Column(db.Float, nullable = False)
+    is_remove = db.Column(db.Boolean, default = False)
+    def serialize(self):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+    def serialize_list(l):
+        return [m.serialize() for m in l]
+    def __repr__(self):
+        return '<PictureVariants %r>' % self.id
+
+def addRecordToDatabase(path, arr_search):
+    imgInfo = imgProcessing(path)
+    image = Picture.query.filter_by(lens = imgInfo.lens, header = imgInfo.header, footer = imgInfo.footer, middle = imgInfo.middle).first()
+    if(image is None):
+        image = Picture(lens = imgInfo.lens, header = imgInfo.header, footer = imgInfo.footer, middle = imgInfo.middle)
+        db.session.add(image)
+        db.session.commit()
+        for search in arr_search:
+            variant = PictureVariants.query.filter_by(picture_id=image.id, url = search['url']).first()
+            if(variant is None):
+                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'])
+                db.session.add(variant)
+                db.session.commit()        
+    else:
+        for search in arr_search:
+            variant = PictureVariants.query.filter_by(picture_id=image.id, url = search['url']).first()
+            if(variant is None):
+                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'])
+                db.session.add(variant)
+                db.session.commit()
+    return image.id;
+
+def getResult(imgid):
+    results = PictureVariants.query.filter_by(picture_id=imgid, is_remove=False).all()
+    return PictureVariants.serialize_list(results)
 
 def create_new_folder(local_dir):
     newpath = local_dir
@@ -52,15 +104,16 @@ def task(task):
             saved_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
             app.logger.info("saving {}".format(saved_path))
             img.save(saved_path)
-
             try:
                 search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'))
                 #return the results in Rest/json format
                 arr_search = []
+                links=[]
                 for search_result in search:
                     arr_search.append({"score":search_result.score, "url": search_result.url})
-
-                return jsonify(arr_search)
+                imgid = addRecordToDatabase(saved_path, arr_search)
+                results = getResult(imgid);
+                return jsonify(results)
 
             except IndexError as e:
                 print("error ")
@@ -84,16 +137,28 @@ def task(task):
                 arr_search = []
                 for search_result in search:
                     arr_search.append({"score":search_result.score, "url": search_result.url})
+                imgid = addRecordToDatabase(saved_path, arr_search)
+                results = getResult(imgid);
                 if isFirst:
-                    return jsonify({"isSuccess":isFirst, "message":"Successfully uploaded to clarifai.","searchResult":arr_search})
+                    return jsonify({"isSuccess":isFirst, "message":"Successfully uploaded to clarifai.","searchResult":results})
                 else:
-                    return jsonify({"isSuccess":isFirst, "message":"Already exist on the clarifai.","searchResult":arr_search})
+                    return jsonify({"isSuccess":isFirst, "message":"Already exist on the clarifai.","searchResult":results})
 
             except IndexError as e:
                 print("error ")
                 return jsonify({"isSuccess":False, "message":"Some Exception occur", "error":e })
         else:
             return jsonify('Where is image?')
+    if task == 'remove':
+        if request.method == 'POST':
+            variantid = request.get_json()['variantid'];
+            pictureV = PictureVariants.query.get(variantid)
+            if(pictureV):
+                pictureV.is_remove = True
+                db.session.commit()
+                return jsonify({"isSuccess":True, "message":"Removed from list result"})
+            else:
+                return jsonify({"isSuccess":False, "message":"not found variant" })
 
 @app.route('/image', methods=['GET'])
 def api_image():
@@ -125,9 +190,9 @@ def hello_world():
 				</body>
 			</html>
 			""".format(url_for('static', filename='style.css'))
-
 if __name__ == '__main__':
     cors = CORS(app, resources={r"*": {"origins": "*"}})
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+    db.create_all()
     app.run(host='0.0.0.0', debug=True)
