@@ -1,3 +1,4 @@
 *.log
 *.pyc
 backend/uploads/*
+backend/marcas
