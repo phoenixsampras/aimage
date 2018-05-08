@@ -7,3 +7,7 @@ Jinja2==2.10
 MarkupSafe==1.0
 sqlalchemy==1.2.7
 Werkzeug==0.14.1
+flask_cors
+clarifai
+psycopg2
+psycopg2-binary
