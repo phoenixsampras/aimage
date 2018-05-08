@@ -38,9 +38,17 @@ export class ImageService {
     upload(image) {
         return this.apiService.post_file('task/upload', {});
     }
+
     remove(id) {
         return this.apiService.post('task/remove', {
             variantid:id
+        })
+    }
+
+    changeOrder(id, new_order) {
+        return this.apiService.post('variant/order', {
+            variantid:id,
+            new_order
         })
     }
 }

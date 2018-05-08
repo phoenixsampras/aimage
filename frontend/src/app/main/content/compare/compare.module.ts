@@ -8,6 +8,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 // primeng
 import { MessagesModule } from 'primeng/primeng';
 import { GrowlModule } from 'primeng/primeng';
+import {SortablejsModule} from 'angular-sortablejs';
+import { OrderModule } from 'ngx-order-pipe';
 const routes = [
     {
         path: 'compare',
@@ -24,7 +26,9 @@ const routes = [
         RouterModule.forChild(routes),
         FileUploadModule,
         MessagesModule,
-        GrowlModule
+        GrowlModule,
+        OrderModule,
+        SortablejsModule.forRoot({animation:150})
     ],
     exports: [
         CompareComponent

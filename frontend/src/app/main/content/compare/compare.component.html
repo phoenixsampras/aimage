@@ -16,13 +16,17 @@
           <img id="preview" src="" alt="" [class.small]="isResult">
         </div>
         <h2>Resultado:</h2>
-        <div class="cards">
+        <div class="cards" [sortablejs]="result" [sortablejsOptions] = "sortOption">
 
           <!-- CARD 1 -->
-          <div class="card" *ngFor="let item of result;let index = index">
+          <div class="card" *ngFor="let item of result ;let index = index" [ngClass]= " {
+            'dragabble': canSort
+          }">
             <!-- PREVIEW -->
             <div class="card-preview">
+
               <div class="fuse-card">
+                <span>              {{index}}</span>
                 <button class='btn-right mat-raised-button mat-accent btn-remove' (click) = "removeFromResult(item)"> X </button>
                 <img src="{{item.url}}">
                 <div class="p-16">
