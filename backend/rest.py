@@ -59,7 +59,7 @@ def addRecordToDatabase(path, arr_search):
             if(variant is None):
                 variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'], original_order=index, order = index)
                 db.session.add(variant)
-                db.session.commit()        
+                db.session.commit()
     else:
         for index,search in enumerate(arr_search):
             variant = PictureVariants.query.filter_by(picture_id=image.id, url = search['url']).first()
@@ -107,7 +107,7 @@ def task(task):
             app.logger.info("saving {}".format(saved_path))
             img.save(saved_path)
             try:
-                search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'))
+                search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'),per_page=100)
                 #return the results in Rest/json format
                 arr_search = []
                 links=[]
@@ -133,7 +133,7 @@ def task(task):
             img.save(saved_path)
 
             try:
-                search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'))
+                search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'),per_page=50)
                 arr_search = []
                 #return the results in Rest/json format
                 isFirst = upload_to_clarifai(search, saved_path)
