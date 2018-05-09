@@ -14,7 +14,6 @@ import { CompareModule } from './main/content/compare/compare.module';
 import { UploadModule } from './main/content/upload/upload.module';
 import { SerivceModule } from './services/service.module';
 import { TranslateModule } from '@ngx-translate/core';
-
 // primeng
 import { MessagesModule } from 'primeng/primeng';
 import { GrowlModule } from 'primeng/primeng';

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { FuseTranslationLoaderService } from '../../../core/services/translation-loader.service';
 import { ImageService } from '../../../services';
@@ -6,6 +6,8 @@ import { locale as english } from './i18n/en';
 import { locale as turkish } from './i18n/tr';
 import { Http } from '@angular/http';
 import { RequestOptions } from '@angular/http';
+import { SortablejsOptions } from 'angular-sortablejs';
+import * as sortBy from 'sort-array';
 declare let $: any;
 @Component({
     selector: 'fuse-sample',
@@ -18,18 +20,80 @@ export class CompareComponent {
     isResult = false;
     file: any;
     result = [];
+    masks = {};
     msgs = [];
+    canSort = true;
     message: any;
+    sortOption: SortablejsOptions = {}
     constructor(
         private translationLoader: FuseTranslationLoaderService,
         private imageService: ImageService,
+        private forceView: ChangeDetectorRef,
         private http: Http) {
         this.translationLoader.loadTranslations(english, turkish);
+        this.sortOption = {
+            onUpdate:(event: any) => {
+                console.log(event)
+                console.log(this.result)
+                this.isLoading = true;
+                this.canSort = false;
+                console.log(this.masks);
+                this.checkOrderChange();
+            },
+            draggable: '.dragabble'
+        }
+    }
+    sortResult() {
+        this.result = sortBy(this.result,'order');
+        this.forceView.detectChanges();
+    }
+    changeOrder(item) {
+        item.order= item.newOrder;
+        return new Promise(resolve => {
+            this.imageService.changeOrder(item.id, item.newOrder).subscribe(data => {
+                resolve();
+            })
+        })
+    }
+    checkOrderChange() {
+        var listChanged = [];
+         Promise.all(this.result.map((item: any,index) => {
+             return new Promise(resolve => {
+                 
+                if(this.masks[index] != item) {
+                    console.log('changed', this.masks[index])
+                    try {
+                    item.newOrder = this.masks[index].order; }
+                    catch(err) {
+                        console.log('err', this.masks)
+                    }
+                    listChanged.push(item)
+                }
+                resolve();
+             })
+        })).then(() => {
+            Promise
+                .all(listChanged.map(item => this.changeOrder(item)))
+                .then(() => {
+                    this.isLoading = false;
+                    this.saveMask();
+                })
+        })
+
+    }
+    saveMask() {
+        this.sortResult()
+        this.masks = Object.assign([], this.result);
+        this.canSort =true;
+        this.forceView.detectChanges();
+        console.log('can sort')
     }
     onTapCompare() {
         this.isLoading = true;
         this.imageService.compare(this.file)
             .then(res => {
+                this.result = res;
+                this.saveMask();
                 this.isLoading = false;
                 this.isResult = true;
                 console.log(res);
@@ -45,7 +109,7 @@ export class CompareComponent {
                     this.msgs.push({ severity: 'error', summary: 'Error', detail: res.message });
                     setTimeout(() => { this.msgs = []; this.message = null; }, 2000);
                 }
-                this.result = res;
+
             })
             .catch(error => {
                 this.isLoading = false;
@@ -74,9 +138,13 @@ export class CompareComponent {
         }
     }
     removeFromResult(item) {
+        this.isLoading = true;
+        console.log(this.isLoading)
         this.imageService.remove(item.id).subscribe(data => {
+            this.isLoading = false;
             let refreshResult = this.result.filter(r => r != item)
             this.result = refreshResult
+            this.saveMask();
         })
     }
 }

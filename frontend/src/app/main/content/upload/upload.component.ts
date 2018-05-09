@@ -74,9 +74,3 @@ export class UploadComponent {
         }
     }
 }
-@Component({
-    selector: 'my-dialog',
-    templateUrl: 'dialog.html'
-})
-export class DialogComponent {
-}

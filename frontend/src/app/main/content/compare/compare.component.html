@@ -1,7 +1,7 @@
 <div class="page-layout blank p-24" fusePerfectScrollbar>
 
   <div fxLayout="row">
-    <div fxFlex="70%" class="center">
+    <div fxFlex="100%" class="center">
       <div class="mat-elevation-z4 p-24">
 
         <h2>Subir archivo para comparar:</h2>
@@ -12,21 +12,26 @@
         <mat-progress-bar class="mt-24" *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
         <div class="message" *ngIf="message">{{message}}</div>
         <div></div>
-        <div class="wraper mt-24">
-          <img id="preview" src="" alt="" [class.small]="isResult">
+        <div class="wraper mt-24" >
+          <img id="preview" src="" alt="" [class.small]="isResult" style="max-width:200px;max-height:200px;">
         </div>
         <h2>Resultado:</h2>
-        <div class="cards">
+        <div class="cards" [sortablejs]="result" [sortablejsOptions] = "sortOption">
 
           <!-- CARD 1 -->
-          <div class="card" *ngFor="let item of result;let index = index">
+          <div class="card" *ngFor="let item of result ;let index = index" [ngClass]= " {
+            'dragabble': canSort
+          }">
             <!-- PREVIEW -->
             <div class="card-preview">
-              <div class="fuse-card">
+
+              <div class="fuse-card p-2">
+                <span>              {{index}}</span>
                 <button class='btn-right mat-raised-button mat-accent btn-remove' (click) = "removeFromResult(item)"> X </button>
                 <img src="{{item.url}}">
-                <div class="p-16">
-                  <div class="h1">Score {{item.score}}</div>
+                <div class="p-6">
+                  <!-- <div class="h1">Score {{item.score}}</div> -->
+                  <div class="h1">Socio: {{item.id}}</div>
                 </div>
               </div>
 

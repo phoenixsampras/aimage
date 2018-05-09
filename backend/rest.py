@@ -38,6 +38,8 @@ class PictureVariants(db.Model): #declare PictureVariants Table
     picture_id = db.Column(db.Integer, db.ForeignKey('picture.id'), nullable= False)
     score = db.Column(db.Float, nullable = False)
     is_remove = db.Column(db.Boolean, default = False)
+    original_order = db.Column(db.Integer, nullable = False)
+    order = db.Column(db.Integer, nullable = False)
     def serialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
     def serialize_list(l):
@@ -52,17 +54,17 @@ def addRecordToDatabase(path, arr_search):
         image = Picture(lens = imgInfo.lens, header = imgInfo.header, footer = imgInfo.footer, middle = imgInfo.middle)
         db.session.add(image)
         db.session.commit()
-        for search in arr_search:
+        for index,search in enumerate(arr_search):
             variant = PictureVariants.query.filter_by(picture_id=image.id, url = search['url']).first()
             if(variant is None):
-                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'])
+                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'], original_order=index, order = index)
                 db.session.add(variant)
                 db.session.commit()        
     else:
-        for search in arr_search:
+        for index,search in enumerate(arr_search):
             variant = PictureVariants.query.filter_by(picture_id=image.id, url = search['url']).first()
             if(variant is None):
-                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'])
+                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'], original_order=index, order = index)
                 db.session.add(variant)
                 db.session.commit()
     return image.id;
@@ -132,9 +134,9 @@ def task(task):
 
             try:
                 search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'))
+                arr_search = []
                 #return the results in Rest/json format
                 isFirst = upload_to_clarifai(search, saved_path)
-                arr_search = []
                 for search_result in search:
                     arr_search.append({"score":search_result.score, "url": search_result.url})
                 imgid = addRecordToDatabase(saved_path, arr_search)
@@ -167,6 +169,18 @@ def api_image():
         return send_file('./uploads/{}'.format(filename), mimetype='image/gif')
     else:
         return 'Cannot find file {}'.format(filename)
+
+@app.route('/variant/order', methods=['POST'])
+def orderChange():
+    variantid = request.get_json()['variantid']
+    newOrder = request.get_json()['new_order']
+    pictureV = PictureVariants.query.get(variantid)
+    if(pictureV):
+        pictureV.order = newOrder
+        db.session.commit()
+        return jsonify({"isSuccess":True, "message":"Changed Order"})
+    else:
+        return jsonify({"isSuccess":False, "message":"not found variant" })
 
 @app.route('/', methods=['GET'])
 def hello_world():
