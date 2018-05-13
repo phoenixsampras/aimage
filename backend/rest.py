@@ -34,7 +34,10 @@ class Picture(db.Model): #declare Picture Table
 
 class PictureVariants(db.Model): #declare PictureVariants Table
     id= db.Column(db.Integer, primary_key=True)
+    input_id =db.Column(db.String, unique=False)
     url = db.Column(db.String,  nullable= False)
+    metafilename = db.Column(db.String, nullable= False)
+    metaid = db.Column(db.String, nullable= False)
     picture_id = db.Column(db.Integer, db.ForeignKey('picture.id'), nullable= False)
     score = db.Column(db.Float, nullable = False)
     is_remove = db.Column(db.Boolean, default = False)
@@ -46,7 +49,16 @@ class PictureVariants(db.Model): #declare PictureVariants Table
         return [m.serialize() for m in l]
     def __repr__(self):
         return '<PictureVariants %r>' % self.id
-
+def getScore(image, list_result):
+    ids = []
+    for result in list_result:
+        ids.append(result['input_id'])
+    images = PictureVariants.query.filter_by(picture_id = image.id)
+    score = 0
+    for image in images:
+        if(image.input_id in ids):
+            score+=1
+    return score;
 def addRecordToDatabase(path, arr_search):
     imgInfo = imgProcessing(path)
     image = Picture.query.filter_by(lens = imgInfo.lens, header = imgInfo.header, footer = imgInfo.footer, middle = imgInfo.middle).first()
@@ -54,31 +66,55 @@ def addRecordToDatabase(path, arr_search):
         image = Picture(lens = imgInfo.lens, header = imgInfo.header, footer = imgInfo.footer, middle = imgInfo.middle)
         db.session.add(image)
         db.session.commit()
-        for index,search in enumerate(arr_search):
-            variant = PictureVariants.query.filter_by(picture_id=image.id, url = search['url']).first()
-            if(variant is None):
-                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'], original_order=index, order = index)
-                db.session.add(variant)
-                db.session.commit()        
-    else:
-        for index,search in enumerate(arr_search):
-            variant = PictureVariants.query.filter_by(picture_id=image.id, url = search['url']).first()
-            if(variant is None):
-                variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'], original_order=index, order = index)
-                db.session.add(variant)
-                db.session.commit()
+        db.session.refresh(image)
+    isFirst, imageData = checkIsFirst(arr_search)
+    if(not isFirst):
+        parentRoot = PictureVariants.query.filter(PictureVariants.input_id == imageData['input_id'], PictureVariants.order <=4,PictureVariants.is_remove == False);
+        maxScore = -1;
+        maxId = -1;
+        for parent in parentRoot:
+            score = getScore(parent, arr_search);
+            if( score > maxScore):
+                maxId = parent.picture_id
+                maxScore = score
+        list_search = PictureVariants.query.filter_by(picture_id = maxId).order_by(PictureVariants.order).limit(5)
+        arr_search = PictureVariants.serialize_list(list_search) + arr_search;
+    for index,search in enumerate(arr_search):
+        variant = PictureVariants.query.filter_by(url = search['url'], input_id = search['input_id'], picture_id= image.id).first()
+        if(variant is None):
+            variant = PictureVariants(picture_id=image.id, url= search['url'], score= search['score'], original_order=index, order = index, input_id= search['input_id'],metafilename = search['metafilename'], metaid = search['metaid'])
+            db.session.add(variant)
+            db.session.commit()
     return image.id;
 
 def getResult(imgid):
     results = PictureVariants.query.filter_by(picture_id=imgid, is_remove=False).all()
     return PictureVariants.serialize_list(results)
 
+def getclarifaimeta(image):
+    imageObject = {"score":image.score, "url": image.url}
+    imageObject['input_id'] = image.input_id
+    if(image.metadata is None):
+        imageObject['metafilename'] = '';
+        imageObject['metaid'] = ''
+    else:
+        imageObject['metafilename'] = image.metadata['filename']
+        imageObject['metaid'] = image.metadata['id']
+    return imageObject
 def create_new_folder(local_dir):
     newpath = local_dir
     if not os.path.exists(newpath):
         os.makedirs(newpath)
     return newpath
-
+def checkIsFirst(array_search):
+    isFirst = True;
+    imageData = {};
+    for search_result in array_search:
+        if search_result['score'] > 0.99:
+            isFirst = False
+            imageData = search_result
+            break
+    return isFirst,imageData;
 def upload_to_clarifai(search, saved_path):
     isFirst = True
     for search_result in search:
@@ -99,8 +135,6 @@ def task(task):
         if request.method == 'POST' and request.files['image']:
             app.logger.info(app.config['UPLOAD_FOLDER'])
             img = request.files['image']
-            print(img)
-            print(type(img))
             img_name = secure_filename(img.filename)
             create_new_folder(app.config['UPLOAD_FOLDER'])
             saved_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
@@ -112,7 +146,8 @@ def task(task):
                 arr_search = []
                 links=[]
                 for search_result in search:
-                    arr_search.append({"score":search_result.score, "url": search_result.url})
+                    imageObject = getclarifaimeta(search_result)
+                    arr_search.append(imageObject)
                 imgid = addRecordToDatabase(saved_path, arr_search)
                 results = getResult(imgid);
                 return jsonify(results)
@@ -138,7 +173,8 @@ def task(task):
                 #return the results in Rest/json format
                 isFirst = upload_to_clarifai(search, saved_path)
                 for search_result in search:
-                    arr_search.append({"score":search_result.score, "url": search_result.url})
+                    imageObject = getclarifaimeta(search_result)
+                    arr_search.append(imageObject)
                 imgid = addRecordToDatabase(saved_path, arr_search)
                 results = getResult(imgid);
                 if isFirst:
@@ -153,15 +189,14 @@ def task(task):
             return jsonify('Where is image?')
     if task == 'remove':
         if request.method == 'POST':
-            variantid = request.get_json()['variantid'];
-            pictureV = PictureVariants.query.get(variantid)
-            if(pictureV):
+            input_id = request.get_json()['input_id'];
+            order = request.get_json()['order'];
+            pictureVList = PictureVariants.query.filter_by(input_id = input_id, order = order)
+            for pictureV in pictureVList:
                 pictureV.is_remove = True
                 db.session.commit()
-                return jsonify({"isSuccess":True, "message":"Removed from list result"})
-            else:
-                return jsonify({"isSuccess":False, "message":"not found variant" })
-
+            return jsonify({"isSuccess":True, "message":"Removed from list result"})
+            
 @app.route('/image', methods=['GET'])
 def api_image():
     filename = request.args.get('filename', default = '*', type = str)
@@ -172,16 +207,24 @@ def api_image():
 
 @app.route('/variant/order', methods=['POST'])
 def orderChange():
-    variantid = request.get_json()['variantid']
+    oldorder = request.get_json()['oldorder']
+    inputid= request.get_json()['input_id']
     newOrder = request.get_json()['new_order']
-    pictureV = PictureVariants.query.get(variantid)
-    if(pictureV):
-        pictureV.order = newOrder
+    pictureVList = PictureVariants.query.filter_by(input_id = inputid, order = oldorder)
+    for picture in pictureVList:
+        picture.order = newOrder
         db.session.commit()
-        return jsonify({"isSuccess":True, "message":"Changed Order"})
-    else:
-        return jsonify({"isSuccess":False, "message":"not found variant" })
-
+    return jsonify({"isSuccess":True, "message":"Changed Order"})
+    
+@app.route('/variant/reset', methods=['POST'])
+def variantReset():
+    picture_id = request.get_json()['picture_id']
+    pictureVList = PictureVariants.query.filter_by(picture_id = picture_id)
+    for picture in pictureVList:
+        picture.is_remove= False
+        picture.order = picture.original_order
+        db.session.commit()
+    return jsonify({"isSuccess":True, "message":"reset successfully"})
 @app.route('/', methods=['GET'])
 def hello_world():
 	#print('--------------------- GET request ------------------', file=sys.stderr)

@@ -1,9 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 POSTGRES = {
-    'user': 'odoo',
+    'user': 'postgres',
     'pw': '123456',
     'db': 'clarifai',
-    'host': '9.9.9.99',
+    'host': 'localhost',
     'port': '5432',
 }
 
