@@ -48,9 +48,10 @@ export class CompareComponent {
         this.forceView.detectChanges();
     }
     changeOrder(item) {
+        let oldorder = item.order;
         item.order= item.newOrder;
         return new Promise(resolve => {
-            this.imageService.changeOrder(item.id, item.newOrder).subscribe(data => {
+            this.imageService.changeOrder(item.input_id, oldorder, item.newOrder).subscribe(data => {
                 resolve();
             })
         })
@@ -140,11 +141,21 @@ export class CompareComponent {
     removeFromResult(item) {
         this.isLoading = true;
         console.log(this.isLoading)
-        this.imageService.remove(item.id).subscribe(data => {
+        this.imageService.remove(
+             item.input_id,
+             item.order
+        ).subscribe(data => {
             this.isLoading = false;
             let refreshResult = this.result.filter(r => r != item)
             this.result = refreshResult
             this.saveMask();
+        })
+    }
+    reset() {
+        this.isLoading = true
+        this.imageService.reset(this.result[0].picture_id).subscribe(data => {
+            this.isLoading = false;
+            this.onTapCompare()
         })
     }
 }
