@@ -15,8 +15,11 @@
         <div class="wraper mt-24" >
           <img id="preview" src="" alt="" [class.small]="isResult" style="max-width:200px;max-height:200px;">
         </div>
-        <h2>Resultado:</h2>
-        <div class="cards" [sortablejs]="result" [sortablejsOptions] = "sortOption">
+        <h2>Resultado:</h2> 
+          <div class='row'>
+            <button class='mat-raised-button mat-accent btn-danger' (click) = "reset()" *ngIf='result.length >0 '> Reset </button>
+          </div>
+          <div class="cards" [sortablejs]="result" [sortablejsOptions] = "sortOption">
 
           <!-- CARD 1 -->
           <div class="card" *ngFor="let item of result ;let index = index" [ngClass]= " {
