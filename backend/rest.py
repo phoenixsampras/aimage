@@ -10,7 +10,8 @@ from clarifai.rest import Image as ClImage
 import base64
 from models.db import initDB
 from service.imgProcessing import imgProcessing
-clarifai_app = ClarifaiApp(api_key='c650f1c0094a4dd2b6021ca7175c88e5')
+# clarifai_app = ClarifaiApp(api_key='c650f1c0094a4dd2b6021ca7175c88e5')
+clarifai_app = ClarifaiApp(api_key='a3eb9ad46f4b43b2974a3c7fd5dfe6ea')
 # HOST_URL_PORT='http://sports-dev.calm-health.com:5000/'
 # HOST_URL_PORT='http://9.9.9.113:5000/'
 HOST_URL_PORT='http://localhost:5000/'
