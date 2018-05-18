@@ -148,8 +148,9 @@ def task(task):
                 for search_result in search:
                     imageObject = getclarifaimeta(search_result)
                     arr_search.append(imageObject)
-                imgid = addRecordToDatabase(saved_path, arr_search)
-                results = getResult(imgid);
+                # imgid = addRecordToDatabase(saved_path, arr_search)
+                # results = getResult(imgid);
+                results = arr_search;
                 return jsonify(results)
 
             except IndexError as e:
