@@ -3,7 +3,7 @@ from flask import request, jsonify
 from vendor.helper.create_new_folder import create_new_folder
 from werkzeug import secure_filename
 from middleware.clarifai import clarifai_app
-from service.getclarifaimeta import getclarifaimeta
+from service.get_clarifai_meta import getclarifaimeta
 from service.add_record_to_database import addRecordToDatabase
 from service.get_result import getResult
 import os
