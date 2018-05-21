@@ -1,10 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from vendor.core.app import app
 POSTGRES = {
-    'user': 'odoo',
+    'user': 'postgres',
     'pw': '123456',
-    'db': 'FEGASACRUZ',
-    'host': '9.9.9.20',
+    'db': 'clarifai',
+    'host': 'localhost',
     'port': '5432',
 }
 
