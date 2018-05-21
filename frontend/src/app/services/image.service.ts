@@ -59,5 +59,10 @@ export class ImageService {
             picture_id
         })
     }
-
+    editTag(variant_id, tags) {
+        return this.apiService.post('variant/tag', {
+            variant_id,
+            tags
+        })
+    }
 }

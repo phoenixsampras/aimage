@@ -10,6 +10,9 @@ import { MessagesModule } from 'primeng/primeng';
 import { GrowlModule } from 'primeng/primeng';
 import {SortablejsModule} from 'angular-sortablejs';
 import { OrderModule } from 'ngx-order-pipe';
+import {ModalModule} from "ngx-modal";
+import {ChipsModule} from 'primeng/chips';
+import {DialogModule} from 'primeng/dialog';
 const routes = [
     {
         path: 'compare',
@@ -28,6 +31,8 @@ const routes = [
         MessagesModule,
         GrowlModule,
         OrderModule,
+        ChipsModule,
+        DialogModule,
         SortablejsModule.forRoot({animation:150})
     ],
     exports: [

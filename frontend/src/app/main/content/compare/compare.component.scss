@@ -31,6 +31,22 @@
   padding:0 !important;
   margin-bottom:10px;
 }
+.btn-tag {
+  @extend .btn-remove;
+  background: #3c4252;
+}
+.tag_container {
+
+  span {
+    line-height: 45px;
+    min-width: 50px;
+    border-radius: 50px;
+    text-align: center;
+    padding: 0 10px;
+    margin-right:5px;
+    height:20px;
+  }
+}
 .cards {
   display: flex;
   flex-direction: row;

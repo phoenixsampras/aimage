@@ -35,6 +35,11 @@
                 <div class="p-6">
                   <!-- <div class="h1">Score {{item.score}}</div> -->
                   <div class="h1">Socio: {{item.id}}</div>
+                  <div class='row tag_container'>
+                      <span *ngFor='let tag of item.tags.slice(0,3)' class='ui-chips-token-label ui-state-highlight tag'>{{tag}} </span>
+                      <span *ngIf='item.tags.length >3'>...</span>
+                      <button class='btn-right mat-raised-button mat-accent btn-danger btn-tag'  (click)="showDialogTags(item)">T</button>
+                  </div>
                 </div>
               </div>
 
@@ -48,4 +53,13 @@
       </div>
     </div>
   </div>
+
+  <p-dialog  header="Edit Tag" [(visible)]="display" [modal]="true" [responsive]="true" [width]="350" [minWidth]="200" [minY]="70" appendTo="body" >
+    <mat-progress-bar class="mt-24" *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+    <p-chips [(ngModel)]="masksTag" ></p-chips>
+    <p-footer>
+      <button type="button" pButton (click)="saveTag()" label="Save"></button>
+      <button type="button" pButton (click)="display=false" label="Close"></button>
+    </p-footer>
+</p-dialog>
 </div>

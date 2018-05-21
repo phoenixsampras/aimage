@@ -17,9 +17,12 @@ declare let $: any;
 export class CompareComponent {
     isLoading = false;
     isEnable = false;
+    display= false;
     isResult = false;
     file: any;
+    masksTag = [];
     result = [];
+    select: any = {}
     masks = {};
     msgs = [];
     canSort = true;
@@ -156,6 +159,20 @@ export class CompareComponent {
         this.imageService.reset(this.result[0].picture_id).subscribe(data => {
             this.isLoading = false;
             this.onTapCompare()
+        })
+    }
+    showDialogTags(item) {
+        this.select = item;
+        this.masksTag = item.tags;
+        this.display = true;
+    }
+ 
+    saveTag() {
+        this.isLoading = true;
+        this.imageService.editTag(this.select.id, this.masksTag).subscribe(response =>{
+            this.select.tags = this.masksTag
+            this.masksTag = [];
+            this.isLoading = false;
         })
     }
 }
