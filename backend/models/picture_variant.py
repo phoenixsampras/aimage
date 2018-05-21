@@ -1,5 +1,6 @@
 from vendor.module.load_db import db
 from sqlalchemy.inspection import inspect
+from sqlalchemy import types
 class PictureVariants(db.Model): #declare PictureVariants Table
     id= db.Column(db.Integer, primary_key=True)
     input_id =db.Column(db.String, unique=False)
@@ -11,7 +12,7 @@ class PictureVariants(db.Model): #declare PictureVariants Table
     is_remove = db.Column(db.Boolean, default = False)
     original_order = db.Column(db.Integer, nullable = False)
     order = db.Column(db.Integer, nullable = False)
-    tag = db.Column(db.Integer(), db.ForeignKey('tag.id'), nullable = False)
+    tags = db.Column(types.ARRAY(db.String), nullable = False, default = [])
     def serialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
     def serialize_list(l):
