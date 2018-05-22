@@ -1,0 +1,15 @@
+[Unit]
+Description=Fegasacruz Flask server
+After=network.target
+
+[Service]
+User=root
+Group=root
+PermissionsStartOnly=true
+ExecStart=/opt/bb/app/fegasacruz/backend/app.py
+WorkingDirectory=/opt/bb/app/fegasacruz/backend/
+Restart=on-failure
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
