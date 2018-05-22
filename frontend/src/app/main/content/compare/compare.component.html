@@ -34,7 +34,7 @@
                 <img src="{{item.url}}">
                 <div class="p-6">
                   <!-- <div class="h1">Score {{item.score}}</div> -->
-                  <div class="h1">Socio: {{item.id}}</div>
+                  <div class="h2">Socio: {{item.metaid}}</div>
                   <div class='row tag_container'>
                       <span *ngFor='let tag of item.tags.slice(0,3)' class='ui-chips-token-label ui-state-highlight tag'>{{tag}} </span>
                       <span *ngIf='item.tags.length >3'>...</span>

@@ -6,3 +6,4 @@ db.py
 load_db.py
 load_router.py
 clarifai.py
+frontend/dist
