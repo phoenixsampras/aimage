@@ -20,7 +20,7 @@ def compare():
         app.logger.info("saving {}".format(saved_path))
         img.save(saved_path)
         try:
-            search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'))
+            search = clarifai_app.inputs.search_by_image(fileobj=open(saved_path, 'rb'),per_page=200)
             #return the results in Rest/json format
             arr_search = []
             links=[]
