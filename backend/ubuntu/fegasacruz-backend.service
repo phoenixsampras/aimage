@@ -10,6 +10,8 @@ ExecStart=/opt/bb/app/fegasacruz/backend/app.py
 WorkingDirectory=/opt/bb/app/fegasacruz/backend/
 Restart=on-failure
 RemainAfterExit=yes
+StandardOutput=syslog
+StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
